@@ -67,8 +67,8 @@ public class SimSpace {
 					} else {
 						behav = 1;
 					}
-					Auto temp = new Auto(i,(j * (i % 2)) * (TRACK_LEN / (cpl + 1)), 1 /*behav*/,);
-					auto_arr.add(temp);
+					//Auto temp = new Auto(i,(j * (i % 2)) * (TRACK_LEN / (cpl + 1)), 1 /*behav*/,);
+					//auto_arr.add(temp);
 				}
 			}
 		}
