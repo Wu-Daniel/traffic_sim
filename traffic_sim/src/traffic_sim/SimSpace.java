@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class SimSpace {
-	private static ArrayList<Auto> auto_arr = new ArrayList<Auto>();
+	private static ArrayList<ArrayList<Auto>> auto_dat = new ArrayList<ArrayList<Auto>>();
 	private static double[] c_prop; 
 	
 	private static final int C_LEN = 5;
@@ -41,26 +41,38 @@ public class SimSpace {
 	
 	public static void main(String[] args) {
 		genInit(TYPE);
-		System.out.println("gen finish ... ");
 		snapshot("input.txt");
+		
+		System.out.println(auto_dat.size());
 	}
 	public static void runSim() {
 		
 	}
 	
 	public static void runSim(int steps) {
-		
+		for (int i = 0; i < steps; i++) {
+			iterate();
+		}
+	}
+	
+	public static void iterate() {
+		for (int i = 0; i < auto_dat.size(); i++) {
+			
+		}
 	}
 	
 	public static void genInit(int type) {
+		System.out.println("genInit start ...");
+		
 		c_prop = C_PROP;
 		int num_lane = c_prop.length;
 		
 		// density = num_car * c_len / track_len
 		int cpl =  (int) ((DENSITY * TRACK_LEN / (C_LEN) ) - 1); 
-		System.out.println(cpl);
+		System.out.println("cpl... " + cpl);
 		if (type == 1) {
 			for (int i = 0; i < num_lane; i++) {
+				ArrayList<Auto> lane_arr = new ArrayList<Auto>();
 				for (int j = 0; j < cpl; j++ ) {
 					int lane = i + 1;
 					double pos = ((j + (i % 2)) * (TRACK_LEN / (cpl + 1)));
@@ -76,19 +88,21 @@ public class SimSpace {
 
 					Auto auto = new Auto(lane, pos, behav, desired_speed, current_speed, decel_rate, accel_rate, 
 							slow_thresh, fwd_thresh, spd_thresh, sde_thresh);	
-					auto_arr.add(auto);
+					lane_arr.add(auto);
 				}
+				auto_dat.add(lane_arr);
 			}
 		}
-		
+		System.out.println("gen finish ... ");
 	}
 	
 	public static void snapshot(String filename) {
-		System.out.println(auto_arr.size());
 		try {
 			PrintWriter writer = new PrintWriter(filename, "UTF-8");
-			for (Auto auto : auto_arr) {
+			for (ArrayList<Auto> auto_arr : auto_dat) {
+				for (Auto auto : auto_arr) {
 				writer.println(auto.getLane() + "," + auto.getPos() + "," + auto.getSpeed());
+				}
 			}
 			writer.close();
 		} catch (Exception e) {
