@@ -4,7 +4,7 @@ public class Auto {
 	private int exist;
 	
 	private int lane;
-	private int pos;
+	private double pos;
 	private int behaviour;
 	
 	private double current_speed;
@@ -28,22 +28,22 @@ public class Auto {
 			double decel_rate, double acel_rate, double slow_thresh, double fwd_thresh, 
 			double spd_thresh, double sde_thresh) {
 		
-		lane = this.lane;
-		pos = this.pos;
-		behaviour = this.behaviour;		
+		this.lane = lane;
+		this.pos = pos;
+		this.behaviour = behaviour;		
 		
-		current_speed = this.current_speed;
-		desired_speed = this.desired_speed;
+		this.current_speed = current_speed;
+		this.desired_speed = desired_speed;
 		
-		decel_rate = this.decel_rate;
-		acel_rate = this.acel_rate;
+		this.decel_rate = decel_rate;
+		this.acel_rate = acel_rate;
 		
-		slow_thresh = this.slow_thresh;
+		this.slow_thresh = slow_thresh;
 		
-		fwd_thresh = this.fwd_thresh;
-		spd_thresh = this.spd_thresh;
+		this.fwd_thresh = fwd_thresh;
+		this.spd_thresh = spd_thresh;
 		
-		sde_thresh = this.sde_thresh;		
+		this.sde_thresh = sde_thresh;		
 		
 		exist = 1;
 	}
@@ -60,7 +60,7 @@ public class Auto {
 		return lane;
 	}
 	
-	public int getPos() {
+	public double getPos() {
 		return pos;
 	}
 	
