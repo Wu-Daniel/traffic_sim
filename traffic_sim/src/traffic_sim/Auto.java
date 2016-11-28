@@ -72,9 +72,9 @@ public class Auto implements Comparable<Auto>{
 		return behaviour;
 	}
 	
-	public void step(Auto auto_up_f, Auto auto_up_b, Auto auto_down_f, Auto auto_down_b, Auto auto_forward, 
-			double step_size) {
-		
+	public boolean step(Auto auto_up_f, Auto auto_up_b, Auto auto_down_f, Auto auto_down_b, Auto auto_forward, 
+			double step_size, double obs_point) {
+		double prev_pos = pos;
 		if (behaviour == 1) {
 			
 			if (auto_forward.getPos() - pos < slow_thresh) {
@@ -112,6 +112,13 @@ public class Auto implements Comparable<Auto>{
 				
 			}
 		}
+		
+		if (prev_pos <= obs_point && obs_point <= pos) {
+			return true;
+		} else {
+			return false;
+		}
+		
 	}
 	
 	private int safeSwitch(Auto fwd, Auto bwd) {

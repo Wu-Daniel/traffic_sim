@@ -4,12 +4,15 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class SimSpace {
-	private static ArrayList<ArrayList<Auto>> auto_dat = new ArrayList<ArrayList<Auto>>();
-	private static double[] c_prop; 
 	
+	private static ArrayList<ArrayList<Auto>> auto_dat = new ArrayList<ArrayList<Auto>>();
+	private static ArrayList<int[]> sim_count = new ArrayList<int[]>();
+	private static double[] c_prop; 
+	private static int[] count;
+
 	private static final int C_LEN = 5;
 	private static final double TRACK_LEN = 1000.0;
-	private static final double OBS_LEN = 100.0;
+	private static final double OBS_POINT = 100.0;
 
 	private static final double DENSITY = 0.5;
 	private static final int TYPE = 1;
@@ -45,17 +48,28 @@ public class SimSpace {
 		snapshot("input.txt");
 		runSim(100);
 		snapshot("post_sim.txt");
+		result();
 	}
 	public static void runSim() {
 		
 	}
 	
 	public static void runSim(int steps) {
+		System.out.println("running Simulations for : " + steps + " steps");
 		for (int i = 0; i < steps; i++) {
+			add();
 			restruct();
 			sort();
 			iterate();
+			compare();
+			remove();
 		}
+		System.out.println("simulation complete ... ");
+		System.out.println();
+	}
+	
+	public static void add() {
+		
 	}
 	
 	public static void restruct() {
@@ -80,8 +94,9 @@ public class SimSpace {
 			
 		}
 	}
-	
+		
 	public static void iterate() {
+		count = new int[4];
 		
 		Auto auto_up_f;
 		Auto auto_up_b;
@@ -91,7 +106,7 @@ public class SimSpace {
 		
 		for (int i = 0; i < auto_dat.size(); i++) {
 			ArrayList<Auto> lane_arr = auto_dat.get(i);
-			
+					
 			for (int j = 0; j < lane_arr.size(); j++) {
 				Auto target = lane_arr.get(j);
 				
@@ -130,10 +145,23 @@ public class SimSpace {
 				System.out.println();
 				*/
 				
-				target.step(auto_up_f, auto_up_b, auto_down_f, auto_down_b, auto_forward, STEP_SIZE);
+				boolean pass = target.step(auto_up_f, auto_up_b, auto_down_f, auto_down_b, auto_forward, STEP_SIZE, OBS_POINT);
+				if (pass) {
+					count[target.getLane() - 1] ++;
+				}
 			}		
 		}
 	}
+	
+	public static void compare() {
+		//System.out.println(Arrays.toString(count));
+		sim_count.add(count);
+	}
+	
+	public static void remove() {
+		
+	}
+	
 	public static Auto[] findFwdBwd(Auto target, ArrayList<Auto> lane) {
 		
 		int ind; Auto temp;
@@ -167,7 +195,7 @@ public class SimSpace {
 		
 		// density = num_car * c_len / track_len
 		int cpl =  (int) ((DENSITY * TRACK_LEN / (C_LEN) ) - 1); 
-		System.out.println("cpl... " + cpl);
+		System.out.println("cpl : " + cpl);
 		if (type == 1) {
 			for (int i = 0; i < num_lane; i++) {
 				ArrayList<Auto> lane_arr = new ArrayList<Auto>();
@@ -199,10 +227,12 @@ public class SimSpace {
 			}
 		}
 		System.out.println("gen finish ... ");
+		System.out.println();
 	}
 	
 	public static void snapshot(String filename) {
 		try {
+			System.out.println("snapshot saving to : " + filename);
 			PrintWriter writer = new PrintWriter(filename, "UTF-8");
 			for (ArrayList<Auto> auto_arr : auto_dat) {
 				for (Auto auto : auto_arr) {
@@ -211,8 +241,28 @@ public class SimSpace {
 				}
 			}
 			writer.close();
+			System.out.println("snapshot complete ...");
+			System.out.println();
 		} catch (Exception e) {
 			System.out.println("ERROR");
 		}
+	}
+	
+	public static void result() {
+		int[] temp = new int[4];
+		for (int i = 0; i < sim_count.size();i ++) {
+			int[] temp1 = sim_count.get(i);
+			temp[0] += temp1[0];
+			temp[1] += temp1[1];
+			temp[2] += temp1[2];
+			temp[3] += temp1[3];
+		}
+		try {
+			PrintWriter writer = new PrintWriter("total throughput", "UTF-8");
+			writer.println(Arrays.toString(temp));
+		} catch (Exception e) {
+			System.out.println("ERROR");
+		}
+		System.out.println(Arrays.toString(temp));
 	}
 }
