@@ -52,10 +52,25 @@ public class SimSpace {
 	
 	public static void runSim(int steps) {
 		for (int i = 0; i < steps; i++) {
+			restruct();
 			sort();
 			iterate();
 		}
 	}
+	
+	public static void restruct() {
+		for (int i = 0; i < auto_dat.size(); i++) {
+			ArrayList<Auto> temp = auto_dat.get(i);
+			for (int j = 0; j < temp.size(); j++) {
+				int lane_t = temp.get(j).getLane();
+				if (lane_t != i + 1) {
+					Auto auto_t = temp.get(j);
+					temp.remove(j);
+					auto_dat.get(lane_t-1).add(auto_t);
+				}
+			}
+		}
+	}	
 	
 	public static void sort() {
 		for (int i = 0; i < auto_dat.size(); i++) {
