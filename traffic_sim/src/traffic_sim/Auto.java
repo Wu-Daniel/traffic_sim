@@ -1,92 +1,156 @@
 package traffic_sim;
 
+import java.util.*;
+
 public class Auto {
-	private int exist;
-	
 	private int lane;
-	private int pos;
-	private int behaviour;
+	private double position;
+	private double currentSpeed;
 	
-	private double current_speed;
-	private double desired_speed;
+	private double switchSpeedDifferential;
+	private double desiredSpeed;
+	private double desiredDistance;
+	private double requiredLaneChangeSpaceInFront;
+	private double requiredLaneChangeSpaceBehind;
+	private double accelerationSpeed;
+	private double brakeSpeed;
+	private double size;
+	private double reactionSpeed;
 	
-	private double decel_rate;
-	private double acel_rate;
-	
-	private double slow_thresh;
-	
-	private double fwd_thresh;
-	private double spd_thresh;
-	
-	private double sde_thresh;
-	
-	public Auto() {
-		exist = 0;
-	}
-	
-	public Auto(int lane, double pos, int behaviour, double current_speed, double desired_speed, 
-			double decel_rate, double acel_rate, double slow_thresh, double fwd_thresh, 
-			double spd_thresh, double sde_thresh) {
+	public Auto(SimulationSettings settings, double currentTime, int lane, double pos) {
+		this.lane = lane;
+		this.position = pos;
 		
-		lane = this.lane;
-		pos = this.pos;
-		behaviour = this.behaviour;		
+		switchSpeedDifferential = settings.generateSwitchSpeedDifferential(currentTime);
 		
-		current_speed = this.current_speed;
-		desired_speed = this.desired_speed;
+		currentSpeed = settings.generateDesiredSpeed(currentTime);
+		desiredSpeed = currentSpeed;
 		
-		decel_rate = this.decel_rate;
-		acel_rate = this.acel_rate;
+		desiredDistance = settings.generateDesiredDistance(currentTime);
 		
-		slow_thresh = this.slow_thresh;
+		requiredLaneChangeSpaceInFront = settings.generateRequiredLaneChangeSpaceInFront(currentTime);
+		requiredLaneChangeSpaceBehind = settings.generateRequiredLaneChangeSpaceBehind(currentTime);
 		
-		fwd_thresh = this.fwd_thresh;
-		spd_thresh = this.spd_thresh;
+		accelerationSpeed = settings.generateAccelerationSpeed(currentTime);
+		brakeSpeed = settings.generateBrakeSpeed(currentTime);
 		
-		sde_thresh = this.sde_thresh;		
+		size = settings.generateCarSize(currentTime);
 		
-		exist = 1;
-	}
-	
-	public boolean exist() {
-		if (exist == 1) {
-			return true;
-		} else {
-			return false;
-		}
+		reactionSpeed = settings.generateReactionSpeed(currentTime);
 	}
 
 	public int getLane() {
 		return lane;
 	}
 	
-	public int getPos() {
-		return pos;
+	public double getSize() {
+		return size;
+	}
+	
+	public double getPos() {
+		return position;
 	}
 	
 	public double getSpeed() {
-		return current_speed;
+		return currentSpeed;
 	}
 	
-	public void step(Auto auto_up_f, Auto auto_up_b, Auto auto_down_f, Auto auto_down_b, Auto auto_forward, 
-			double step_size) {
+	public double getReactionSpeed() {
+		return reactionSpeed;
+	}
+	
+	// Override this to make different behaviors
+	public void handleLaneChange(
+			Map<Integer, List<Auto>> state,
+			Auto carInFront,
+			boolean canChangeLeft,
+			boolean canChangeRight,
+			boolean frontConstrained) {
+		// TODO: Still need to implement this.
+	}
+	
+	public void step(
+			Map<Integer, List<Auto>> state, 
+			double stepSize) {
+		// Update position
+		this.position += stepSize * Conversions.HoursPerSecond * this.currentSpeed * Conversions.FeetPerMile;
+		//   feet     += seconds  * hours per second           * miles per hour    * feet per mile
 		
-		if (behaviour == 1) {
-			if (current_speed < desired_speed) {
-				if (auto_forward.exist()) {
-					if (auto_forward.getPos() - pos < fwd_thresh) {
-						if (auto_forward.getSpeed() < current_speed) {
-							current_speed -= decel_rate * step_size;
-						}
-					} else {
-						current_speed += acel_rate * step_size;
-					}
-				} else {
-					current_speed += acel_rate * step_size;
+		List<Auto> currentLane = state.get(this.lane);
+		
+		// Find the next car in the current lane
+		Auto nextCar = null;
+		for (Auto car : currentLane) {
+			double carPos = car.getPos();
+			if (carPos > this.position) {
+				if (nextCar == null || carPos < nextCar.getPos()) {
+					nextCar = car;
 				}
 			}
-		} else  if (behaviour == 2) {
-			
 		}
+		
+		boolean frontConstrained = false;
+		if (nextCar == null) { // No car in front of me
+			updateSpeedNoConstraint(stepSize);
+		} else { // There is a car in front of me
+			double desiredPosition = nextCar.getPos() - this.desiredDistance;
+			if (this.position < desiredPosition) {
+				updateSpeedNoConstraint(stepSize);
+			} else {
+				frontConstrained = true;
+				deccelerate(stepSize);
+			}
+		}
+		
+		boolean canChangeLeft = false;
+		if (state.containsKey(lane + 1)) {
+			List<Auto> nextLane = state.get(lane + 1);
+			canChangeLeft = true;
+			for (Auto leftCar : nextLane) {
+				if (isBlockingLaneChange(leftCar)) {
+					canChangeLeft = false;
+				}
+			}
+		}
+		
+		boolean canChangeRight = false;
+		if (lane > 0) {
+			List<Auto> previousLane = state.get(lane - 1);
+			canChangeRight = true;
+			for (Auto rightCar : previousLane) {
+				if (isBlockingLaneChange(rightCar)) {
+					canChangeRight = false;
+				}
+			}
+		}
+		
+		handleLaneChange(state, nextCar, canChangeLeft, canChangeRight, frontConstrained);
+	}
+	
+	private boolean isBlockingLaneChange(Auto car) {
+		double otherPosition = car.getPos();
+		// If the car is in the range from the space required behind to the space required in front, we can't
+		// lane change.
+		return 
+			otherPosition + car.getSize() > this.position - this.requiredLaneChangeSpaceBehind &&
+			otherPosition < this.position + this.size + this.requiredLaneChangeSpaceInFront;
+	}
+	
+	private void updateSpeedNoConstraint(double stepSize) {
+		if (this.currentSpeed < this.desiredSpeed) {
+			accelerate(stepSize);
+		} else if (this.currentSpeed > this.desiredSpeed) { // I dont think this can happen but w/e
+			deccelerate(stepSize);
+		}
+	}
+	
+	private void accelerate(double stepSize) {
+		this.currentSpeed += stepSize * Conversions.HoursPerSecond * this.accelerationSpeed;
+		// miles per hour += seconds  * hours per second           * miles per hour per hour
+	}
+	
+	private void deccelerate(double stepSize) {
+		this.currentSpeed -= stepSize * Conversions.HoursPerMinute * this.brakeSpeed;
+		// miles per hour += seconds  * hours per second           * miles per hour per hour
 	}
 }
