@@ -1,6 +1,6 @@
 package traffic_sim;
 
-public class Auto {
+public class Auto implements Comparable<Auto>{
 	private int exist;
 	
 	private int lane;
@@ -68,25 +68,38 @@ public class Auto {
 		return current_speed;
 	}
 	
+	public int getBehaviour() {
+		return behaviour;
+	}
+	
 	public void step(Auto auto_up_f, Auto auto_up_b, Auto auto_down_f, Auto auto_down_b, Auto auto_forward, 
 			double step_size) {
 		
 		if (behaviour == 1) {
-			if (current_speed < desired_speed) {
-				if (auto_forward.exist()) {
-					if (auto_forward.getPos() - pos < fwd_thresh) {
-						if (auto_forward.getSpeed() < current_speed) {
-							current_speed -= decel_rate * step_size;
-						}
-					} else {
-						current_speed += acel_rate * step_size;
-					}
-				} else {
-					current_speed += acel_rate * step_size;
-				}
+			
+			if (auto_forward.getPos() - pos < fwd_thresh) {
+				current_speed -= decel_rate * step_size;
+			} else if (current_speed < desired_speed) {
+				current_speed += acel_rate * step_size;
 			}
+			
+			pos += current_speed * step_size;			
 		} else  if (behaviour == 2) {
 			
+		}
+	}
+	
+	public int compareTo(Auto other) {
+		return Double.compare(pos,other.pos);
+	}
+	
+	public String toString() {
+		if (exist == 0) {
+			return "null";
+		} else {
+			return lane + "," + pos + "," + behaviour + "," + current_speed + "," + desired_speed + "," +
+					decel_rate + "," + acel_rate + "," + slow_thresh + "," + fwd_thresh + "," + 
+					spd_thresh + "," + sde_thresh;		
 		}
 	}
 }

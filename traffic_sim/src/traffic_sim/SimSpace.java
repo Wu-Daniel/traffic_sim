@@ -21,8 +21,8 @@ public class SimSpace {
 	private static final double STEP_SIZE = .01;
 	private static final int STEP_REPROP = 10;
 	
-	private static final double DECEL_RATE = 5.0;
-	private static final double ACCEL_RATE = 5.0;
+	private static final double DECEL_RATE = 10.0;
+	private static final double ACCEL_RATE = 10.0;
 	private static final double ACCEL_VAR = 1.0;
 	
 	private static final double AVG_SPEED = 50.0;
@@ -41,9 +41,10 @@ public class SimSpace {
 	
 	public static void main(String[] args) {
 		genInit(TYPE);
+		sort();
 		snapshot("input.txt");
-		
-		System.out.println(auto_dat.size());
+		runSim(100);
+		snapshot("post_sim.txt");
 	}
 	public static void runSim() {
 		
@@ -51,16 +52,98 @@ public class SimSpace {
 	
 	public static void runSim(int steps) {
 		for (int i = 0; i < steps; i++) {
+			sort();
 			iterate();
 		}
 	}
 	
-	public static void iterate() {
+	public static void sort() {
 		for (int i = 0; i < auto_dat.size(); i++) {
+			Collections.sort(auto_dat.get(i));
+			//ArrayList<Auto> temp = auto_dat.get(i);
+			//Collections.sort(temp);
 			
 		}
 	}
 	
+	public static void iterate() {
+		
+		Auto auto_up_f;
+		Auto auto_up_b;
+		Auto auto_down_f;
+		Auto auto_down_b;
+		Auto auto_forward; 
+		
+		for (int i = 0; i < auto_dat.size(); i++) {
+			ArrayList<Auto> lane_arr = auto_dat.get(i);
+			
+			for (int j = 0; j < lane_arr.size(); j++) {
+				Auto target = lane_arr.get(j);
+				
+				if (i == auto_dat.size() - 1) {
+					auto_up_f = new Auto();
+					auto_up_b = new Auto();					
+				} else {
+					ArrayList<Auto> up = auto_dat.get(i+1);
+					Auto[] up_arr = findFwdBwd(target,up);
+					auto_up_f = up_arr[0];
+					auto_up_b = up_arr[1];
+				}
+				
+				if (i == 0) {
+					auto_down_f = new Auto();
+					auto_down_b = new Auto();				
+				} else {
+					ArrayList<Auto> down = auto_dat.get(i-1);
+					Auto[] down_arr = findFwdBwd(target,down);
+					auto_down_f = down_arr[0];
+					auto_down_b = down_arr[1];
+				}
+				if (j == lane_arr.size() - 1) {
+					auto_forward = new Auto();
+				} else {
+					auto_forward = lane_arr.get(j+1);
+				}
+				
+				/*
+				System.out.println(target.toString());
+				System.out.println(auto_up_f.toString());
+				System.out.println(auto_up_b.toString());
+				System.out.println(auto_down_f.toString());
+				System.out.println(auto_down_b.toString());
+				System.out.println(auto_forward.toString());
+				System.out.println();
+				*/
+				
+				target.step(auto_up_f, auto_up_b, auto_down_f, auto_down_b, auto_forward, STEP_SIZE);
+			}		
+		}
+	}
+	public static Auto[] findFwdBwd(Auto target, ArrayList<Auto> lane) {
+		
+		int ind; Auto temp;
+		Auto[] result = new Auto[2];
+		if (lane.get(0).getPos() < target.getPos()) {
+			ind = 0;
+			temp = lane.get(ind);
+			while (temp.getPos() < target.getPos() && ind != lane.size() - 1) {
+				ind ++;
+				temp = lane.get(ind);
+			}
+			if (ind == lane.size() - 1) {
+				result[0] = new Auto();
+				result[1] = lane.get(ind);
+			} else {
+				result[0] = lane.get(ind);
+				result[1] = lane.get(ind - 1);
+			}
+		} else {
+			result[0] = lane.get(0);
+			result[1] = new Auto();
+		}
+		return result;
+	}
+		
 	public static void genInit(int type) {
 		System.out.println("genInit start ...");
 		
@@ -86,8 +169,15 @@ public class SimSpace {
 					double spd_thresh = (Math.random()-.5) * SPD_SWITCH_VAR + SPD_SWITCH_THRESH;
 					double sde_thresh = (Math.random()-.5) * SDE_SWITCH_VAR + SDE_SWITCH_THRESH;
 
+					/*
 					Auto auto = new Auto(lane, pos, behav, desired_speed, current_speed, decel_rate, accel_rate, 
 							slow_thresh, fwd_thresh, spd_thresh, sde_thresh);	
+					*/
+					
+					Auto auto = new Auto(lane, pos, 1, desired_speed, current_speed, decel_rate, accel_rate, 
+							slow_thresh, fwd_thresh, spd_thresh, sde_thresh);	
+					
+					
 					lane_arr.add(auto);
 				}
 				auto_dat.add(lane_arr);
@@ -101,7 +191,8 @@ public class SimSpace {
 			PrintWriter writer = new PrintWriter(filename, "UTF-8");
 			for (ArrayList<Auto> auto_arr : auto_dat) {
 				for (Auto auto : auto_arr) {
-				writer.println(auto.getLane() + "," + auto.getPos() + "," + auto.getSpeed());
+					//writer.println(auto.getLane() + "," + auto.getPos() + "," + auto.getBehaviour() + ","+ auto.getSpeed());
+					writer.println(auto.toString());
 				}
 			}
 			writer.close();
