@@ -11,17 +11,17 @@ public class Simulation {
 	// This holds previous simulated states so that we can handle reaction speeds
 	Map<Double, Map<Integer, List<Auto>>> states = new HashMap<Double, Map<Integer, List<Auto>>>();
 	
-	public Simulation(SimulationSettings settings, int lanes, double length) {
+	public Simulation(SimulationSettings settings, int lanes) {
 		this.settings = settings;
 		this.currentTime = 0;
 		this.laneCount = lanes;
-		this.length = length;
+		this.length = settings.generateTrackLength();
 		
 		Map<Integer, List<Auto>> initialLanes = new HashMap<Integer, List<Auto>>();
 		List<Auto> initialAutos = new ArrayList<Auto>();
 		double distance = settings.generateInitialDistanceBetweenCars();
-		for (double position = 0; position < length / 4; position += distance) {
-			initialAutos.add(new Auto(settings, currentTime, 0, position));
+		for (double position = 0; position < length / 5.5; position += distance) {
+			initialAutos.add(new Auto(settings, 0, position));
 		}
 		initialLanes.put(0, initialAutos);
 		states.put(0.0, initialLanes);

@@ -12,7 +12,7 @@ public class SimSpace extends PApplet {
 
     public void settings(){
 		SimulationSettings settings = new DefaultSettings();
-		sim = new Simulation(settings, 1, 1000);
+		sim = new Simulation(settings, 1);
     	fullScreen();
     }
 
@@ -27,8 +27,8 @@ public class SimSpace extends PApplet {
         fill(255);
         ellipse(width/2, height/2, height-250,height-250);
         
-        for (int i = 0; i < 10; i++) {
-        	sim.step(0.03);
+        for (int i = 0; i < 20; i++) {
+        	sim.step(0.0166);
         }
         
         Map<Integer, List<Auto>> snapShot = sim.snapshot();
@@ -45,7 +45,9 @@ public class SimSpace extends PApplet {
             translate((float)x, (float)y);
             rotate((float)radians);
             
-            if (car.constrained) {
+            float speedFraction = (float)Math.pow(car.getSpeed() / car.getDesiredSpeed(), 0.25);
+            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
+            /*if (car.constrained) {
             	fill(255, 0, 0);
             } else {
             	fill(0, 255, 0);

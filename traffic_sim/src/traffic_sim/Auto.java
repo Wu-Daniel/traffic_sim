@@ -9,7 +9,6 @@ public class Auto {
 	
 	private double switchSpeedDifferential;
 	private double desiredSpeed;
-	private double desiredDistance;
 	private double requiredLaneChangeSpaceInFront;
 	private double requiredLaneChangeSpaceBehind;
 	private double accelerationSpeed;
@@ -17,28 +16,30 @@ public class Auto {
 	private double size;
 	private double reactionSpeed;
 	
+	private SimulationSettings settings;
+	
 	public boolean constrained = false;
 	
-	public Auto(SimulationSettings settings, double currentTime, int lane, double pos) {
+	public Auto(SimulationSettings settings, int lane, double pos) {
 		this.lane = lane;
 		this.position = pos;
 		
-		switchSpeedDifferential = settings.generateSwitchSpeedDifferential(currentTime);
+		switchSpeedDifferential = settings.generateSwitchSpeedDifferential();
 		
 		currentSpeed = 0;
-		desiredSpeed = settings.generateDesiredSpeed(currentTime);
+		desiredSpeed = settings.generateDesiredSpeed();
 		
-		desiredDistance = settings.generateDesiredDistance(currentTime);
+		requiredLaneChangeSpaceInFront = settings.generateRequiredLaneChangeSpaceInFront();
+		requiredLaneChangeSpaceBehind = settings.generateRequiredLaneChangeSpaceBehind();
 		
-		requiredLaneChangeSpaceInFront = settings.generateRequiredLaneChangeSpaceInFront(currentTime);
-		requiredLaneChangeSpaceBehind = settings.generateRequiredLaneChangeSpaceBehind(currentTime);
+		accelerationSpeed = settings.generateAccelerationSpeed();
+		brakeSpeed = settings.generateBrakeSpeed();
 		
-		accelerationSpeed = settings.generateAccelerationSpeed(currentTime);
-		brakeSpeed = settings.generateBrakeSpeed(currentTime);
+		size = settings.generateCarSize();
 		
-		size = settings.generateCarSize(currentTime);
+		reactionSpeed = settings.generateReactionSpeed();
 		
-		reactionSpeed = settings.generateReactionSpeed(currentTime);
+		this.settings = settings;
 	}
 	
 	public Auto(
@@ -47,20 +48,19 @@ public class Auto {
 			double currentSpeed,
 			double switchSpeedDifferential,
 			double desiredSpeed,
-			double desiredDistance,
 			double requiredLaneChangeSpaceInFront,
 			double requiredLaneChangeSpaceBehind,
 			double accelerationSpeed,
 			double brakeSpeed,
 			double size,
 			double reactionSpeed,
-			boolean constrained) {
+			boolean constrained,
+			SimulationSettings settings) {
 		this.lane = lane;
 		this.position = position;
 		this.currentSpeed = currentSpeed;
 		this.switchSpeedDifferential = switchSpeedDifferential;
 		this.desiredSpeed = desiredSpeed;
-		this.desiredDistance = desiredDistance;
 		this.requiredLaneChangeSpaceInFront = requiredLaneChangeSpaceInFront;
 		this.requiredLaneChangeSpaceBehind = requiredLaneChangeSpaceBehind;
 		this.accelerationSpeed = accelerationSpeed;
@@ -68,15 +68,17 @@ public class Auto {
 		this.size = size;
 		this.reactionSpeed = reactionSpeed;
 		this.constrained = constrained;
+		this.settings = settings;
 	}
 	
 	public Auto copy() {
 		return new Auto(
 				lane, position, currentSpeed,
 				switchSpeedDifferential, desiredSpeed,
-				desiredDistance, requiredLaneChangeSpaceInFront,
+				requiredLaneChangeSpaceInFront,
 				requiredLaneChangeSpaceBehind, accelerationSpeed,
-				brakeSpeed, size, reactionSpeed, constrained);
+				brakeSpeed, size, reactionSpeed, constrained, 
+				settings);
 	}
 
 	public int getLane() {
@@ -93,6 +95,10 @@ public class Auto {
 	
 	public double getSpeed() {
 		return currentSpeed;
+	}
+	
+	public double getDesiredSpeed() {
+		return desiredSpeed;
 	}
 	
 	public double getReactionSpeed() {
@@ -148,23 +154,20 @@ public class Auto {
 		
 		if (nextCar == null) {
 			nextCar = lastCar.copy();
-			nextCar.position += 1000; // TODO FIX THIS!!!
+			nextCar.position += settings.generateTrackLength();
 		}
 		
 		boolean frontConstrained = false;
-		if (nextCar == null) { // No car in front of me
+		double distanceToStop = settings.generateTimeNeededToStop() * currentSpeed * Conversions.FeetPerMile * Conversions.HoursPerSecond;
+		double desiredDistance = settings.generateDesiredDistanceStopped() + distanceToStop * Math.pow(currentSpeed / desiredSpeed, 2);
+		double desiredPosition = nextCar.getPos() - desiredDistance;
+		if (this.position < desiredPosition) {
 			updateSpeedNoConstraint(stepSize);
-		} else { // There is a car in front of me
-			double desiredDistance = 30 + (200 - 30) * Math.pow((currentSpeed / desiredSpeed), 2.5);
-			double desiredPosition = nextCar.getPos() - desiredDistance;
-			if (this.position < desiredPosition) {
-				updateSpeedNoConstraint(stepSize);
-				constrained = false;
-			} else {
-				frontConstrained = true;
-				constrained = true;
-				deccelerate(stepSize);
-			}
+			constrained = false;
+		} else {
+			frontConstrained = true;
+			constrained = true;
+			deccelerate(stepSize);
 		}
 		
 		boolean canChangeLeft = false;
@@ -222,7 +225,7 @@ public class Auto {
 	
 	private void deccelerate(double stepSize) {
 		this.currentSpeed -= stepSize * Conversions.HoursPerSecond * this.brakeSpeed;
-		// miles per hour += seconds  * hours per second           * miles per hour per hour
+		// miles per hour -= seconds  * hours per second           * miles per hour per hour
 	}
 	
 	public String toString() {
