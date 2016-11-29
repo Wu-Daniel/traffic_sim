@@ -20,7 +20,7 @@ public class Simulation {
 		Map<Integer, List<Auto>> initialLanes = new HashMap<Integer, List<Auto>>();
 		List<Auto> initialAutos = new ArrayList<Auto>();
 		double distance = settings.generateInitialDistanceBetweenCars();
-		for (double position = 0; position < length / 2.5; position += distance) {
+		for (double position = 0; position < length / 4; position += distance) {
 			initialAutos.add(new Auto(settings, currentTime, 0, position));
 		}
 		initialLanes.put(0, initialAutos);

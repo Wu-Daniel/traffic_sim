@@ -9,12 +9,12 @@ public class DefaultSettings implements SimulationSettings {
 
 	@Override
 	public double generateDesiredSpeed(double currentTime) {
-		return 60;
+		return 65;
 	}
 
 	@Override
 	public double generateDesiredDistance(double currentTime) {
-		return 20;
+		return 30;
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class DefaultSettings implements SimulationSettings {
 
 	@Override
 	public double generateAccelerationSpeed(double currentTime) {
-		return 10000;
+		return 25000;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class DefaultSettings implements SimulationSettings {
 
 	@Override
 	public double generateReactionSpeed(double currentTime) {
-		return 0.11;
+		return 0.3;
 	}
 
 	@Override
@@ -74,6 +74,6 @@ public class DefaultSettings implements SimulationSettings {
 	
 	@Override
 	public double generateInitialDistanceBetweenCars() {
-		return 15;
+		return 10;
 	}
 }

@@ -25,8 +25,8 @@ public class Auto {
 		
 		switchSpeedDifferential = settings.generateSwitchSpeedDifferential(currentTime);
 		
-		currentSpeed = settings.generateDesiredSpeed(currentTime);
-		desiredSpeed = currentSpeed;
+		currentSpeed = 0;
+		desiredSpeed = settings.generateDesiredSpeed(currentTime);
 		
 		desiredDistance = settings.generateDesiredDistance(currentTime);
 		
@@ -133,6 +133,7 @@ public class Auto {
 		
 		// Find the next car in the current lane
 		Auto nextCar = null;
+		Auto lastCar = null;
 		for (Auto car : currentLane) {
 			double carPos = car.getPos();
 			if (carPos > this.position) {
@@ -140,13 +141,22 @@ public class Auto {
 					nextCar = car;
 				}
 			}
+			if (lastCar == null || carPos < lastCar.getPos()) {
+				lastCar = car;
+			}
+		}
+		
+		if (nextCar == null) {
+			nextCar = lastCar.copy();
+			nextCar.position += 1000; // TODO FIX THIS!!!
 		}
 		
 		boolean frontConstrained = false;
 		if (nextCar == null) { // No car in front of me
 			updateSpeedNoConstraint(stepSize);
 		} else { // There is a car in front of me
-			double desiredPosition = nextCar.getPos() - this.desiredDistance * (1 - (nextCar.currentSpeed - currentSpeed) / 5);
+			double desiredDistance = 30 + (200 - 30) * Math.pow((currentSpeed / desiredSpeed), 2.5);
+			double desiredPosition = nextCar.getPos() - desiredDistance;
 			if (this.position < desiredPosition) {
 				updateSpeedNoConstraint(stepSize);
 				constrained = false;

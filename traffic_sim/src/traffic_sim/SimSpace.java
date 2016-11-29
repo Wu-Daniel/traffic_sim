@@ -28,7 +28,7 @@ public class SimSpace extends PApplet {
         ellipse(width/2, height/2, height-250,height-250);
         
         for (int i = 0; i < 10; i++) {
-        	sim.step(0.01);
+        	sim.step(0.03);
         }
         
         Map<Integer, List<Auto>> snapShot = sim.snapshot();
@@ -49,7 +49,7 @@ public class SimSpace extends PApplet {
             	fill(255, 0, 0);
             } else {
             	fill(0, 255, 0);
-            }
+            }/**/
             
             double carLength = car.getSize() * circleLength / sim.length;
             rect(0, 0, 50, (float)carLength);
