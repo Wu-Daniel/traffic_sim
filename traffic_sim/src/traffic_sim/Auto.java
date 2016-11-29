@@ -53,7 +53,8 @@ public class Auto {
 			double accelerationSpeed,
 			double brakeSpeed,
 			double size,
-			double reactionSpeed) {
+			double reactionSpeed,
+			boolean constrained) {
 		this.lane = lane;
 		this.position = position;
 		this.currentSpeed = currentSpeed;
@@ -66,6 +67,7 @@ public class Auto {
 		this.brakeSpeed = brakeSpeed;
 		this.size = size;
 		this.reactionSpeed = reactionSpeed;
+		this.constrained = constrained;
 	}
 	
 	public Auto copy() {
@@ -74,7 +76,7 @@ public class Auto {
 				switchSpeedDifferential, desiredSpeed,
 				desiredDistance, requiredLaneChangeSpaceInFront,
 				requiredLaneChangeSpaceBehind, accelerationSpeed,
-				brakeSpeed, size, reactionSpeed);
+				brakeSpeed, size, reactionSpeed, constrained);
 	}
 
 	public int getLane() {
@@ -140,14 +142,16 @@ public class Auto {
 			}
 		}
 		
-		constrained = false;
+		boolean frontConstrained = false;
 		if (nextCar == null) { // No car in front of me
 			updateSpeedNoConstraint(stepSize);
 		} else { // There is a car in front of me
 			double desiredPosition = nextCar.getPos() - this.desiredDistance * (1 - (nextCar.currentSpeed - currentSpeed) / 5);
 			if (this.position < desiredPosition) {
 				updateSpeedNoConstraint(stepSize);
+				constrained = false;
 			} else {
+				frontConstrained = true;
 				constrained = true;
 				deccelerate(stepSize);
 			}
@@ -175,11 +179,13 @@ public class Auto {
 			}
 		}
 		
+		this.constrained = frontConstrained;
+		
 		if (this.currentSpeed < 0) {
 			this.currentSpeed = 0;
 		}
 
-		handleLaneChange(modifiableState, nextCar, canChangeLeft, canChangeRight, constrained);
+		handleLaneChange(modifiableState, nextCar, canChangeLeft, canChangeRight, frontConstrained);
 	}
 	
 	private boolean isBlockingLaneChange(Auto car) {

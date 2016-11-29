@@ -54,7 +54,7 @@ public class DefaultSettings implements SimulationSettings {
 
 	@Override
 	public double generateReactionSpeed(double currentTime) {
-		return 0.1;
+		return 0.11;
 	}
 
 	@Override

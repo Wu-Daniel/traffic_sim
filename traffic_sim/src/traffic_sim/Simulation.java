@@ -32,6 +32,7 @@ public class Simulation {
 		currentTime += timeStep;
 		
 		Map<Integer, List<Auto>> lastState = states.get(lastTime);
+		double highestReactionTime = 0;
 		for (int i = 0; i < laneCount; i++) {
 			List<Auto> lane = lastState.get(i);
 			for (Auto car : lane) {
@@ -44,7 +45,22 @@ public class Simulation {
 				}
 				Map<Integer, List<Auto>> reactionState = states.get(closestTime);
 				car.step(reactionState, lastState, timeStep);
+				if (car.getReactionSpeed() > highestReactionTime) {
+					highestReactionTime = car.getReactionSpeed();
+				}
 				car.loopTrack(length);
+			}
+		}
+		
+		List<Double> removeList = new ArrayList<Double>();
+		for (double time : states.keySet()) {
+			if (currentTime - highestReactionTime > time) {
+				removeList.add(time);
+			}
+		}
+		for (double timeToRemove : removeList) {
+			if (timeToRemove != lastTime) {
+				states.remove(timeToRemove);
 			}
 		}
 		
