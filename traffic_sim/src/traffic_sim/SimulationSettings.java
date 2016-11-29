@@ -16,4 +16,6 @@ public interface SimulationSettings {
 	double proportionOfGreedyCars(double currentTime); // These can be any number and the simulation should generate with normalized frequency
 	double proportionOfRuleFollowingCars(double currentTime);
 	double proportionOfCasualCars(double currentTime);
+	
+	double generateInitialDistanceBetweenCars();
 }
