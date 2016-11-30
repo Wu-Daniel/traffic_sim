@@ -167,7 +167,7 @@ public class Auto {
 		
 		double desiredPosition;
 		if (nextCar == null) {
-			desiredPosition = position + 1;
+			desiredPosition = position + Integer.MAX_VALUE;
 		} else {
 			desiredPosition = nextCar.getPos() - desiredDistance;
 		}

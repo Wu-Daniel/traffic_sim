@@ -19,7 +19,7 @@ public class SimSpace extends PApplet {
     	background(255);
 		rectMode(CENTER);
 		textAlign(CENTER, CENTER);
-        textSize(32);
+        textSize(height / 60);
         while (sim.currentTime < Settings.initialTime) {
 			sim.step(Settings.stepSize);
 		}
