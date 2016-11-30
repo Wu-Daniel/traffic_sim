@@ -19,7 +19,7 @@ public class SimSpace extends PApplet {
     	background(255);
 		rectMode(CENTER);
 		textAlign(CENTER, CENTER);
-        textSize(height / 60);
+        textSize(Settings.textSize);
         while (sim.currentTime < Settings.initialTime) {
 			sim.step(Settings.stepSize);
 		}
@@ -81,8 +81,8 @@ public class SimSpace extends PApplet {
         
         if (Settings.renderText) {
 	        fill(0);
-	        text("Throughput: " + Double.toString(sim.throughput), width / 2, height / 2 - 20);
-	        text("Time: " + Double.toString(sim.currentTime), width / 2, height / 2 + 20);
+	        text("Throughput: " + Double.toString(sim.throughput), width / 2, height / 2 - Settings.textSize / 2 - 5);
+	        text("Time: " + Double.toString(sim.currentTime), width / 2, height / 2 + Settings.textSize / 2 + 5);
         }
     }
 }

@@ -20,6 +20,7 @@ public class Settings {
 	public static final boolean laneChangeEnabled = true;
 	public static final boolean renderText = true;
 	public static final RenderingStyle renderingStyle = RenderingStyle.Speed;
+	public static final float textSize = 32;
 
 	public static final int initialTime = 100;
 	public static final double recordStartTime = 100;
