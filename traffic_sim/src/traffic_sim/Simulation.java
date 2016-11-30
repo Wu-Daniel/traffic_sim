@@ -5,6 +5,7 @@ import java.util.*;
 public class Simulation {
 	public int counter = 0;
 	public int throughput = 0;
+	public boolean recording = false;
 	
 	public double currentTime;
 	public int carCount = 0;
@@ -31,6 +32,12 @@ public class Simulation {
 	public void step(double timeStep) {
 		double lastTime = currentTime;
 		currentTime += timeStep;
+		
+		if (currentTime > Settings.recordStartTime && currentTime < Settings.recordEndTime) {
+			recording = true;
+		} else {
+			recording = false;
+		}
 		
 		Map<Integer, List<Auto>> lastState = states.get(lastTime);
 		double highestReactionTime = 0;
@@ -59,14 +66,14 @@ public class Simulation {
 				if (!Settings.looped) {
 					if (car.getPos() > Settings.trackLength) {
 						autosToRemove.add(car);
+						if (recording) {
+							throughput ++;
+						}
 					}
 				} else {
-					car.loopTrack(Settings.trackLength);
-				}
-				
-				if (currentTime > Settings.recordStartTime && currentTime < Settings.recordEndTime) {
-					if (car.getPos() > Settings.recordPosition) {
-						throughput ++;
+					int looped = car.loopTrack(Settings.trackLength);
+					if (recording) {
+						throughput += looped;
 					}
 				}
 			}
@@ -131,14 +138,6 @@ public class Simulation {
 		}
 		
 		states.put(currentTime, lanes);
-	}
-	
-	public int getThroughput() {
-		if (currentTime > Settings.recordEndTime) {
-			return throughput;
-		} else {
-			return -1;
-		}
 	}
 	
 	public Map<Integer, List<Auto>> snapshot() {

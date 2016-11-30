@@ -19,7 +19,8 @@ public class SimSpace extends PApplet {
     	background(255);
 		rectMode(CENTER);
 		textAlign(CENTER, CENTER);
-		for (int i = 0; i < Settings.initialSteps; i++) {
+        textSize(32);
+        while (sim.currentTime < Settings.initialTime) {
 			sim.step(Settings.stepSize);
 		}
     }
@@ -78,9 +79,10 @@ public class SimSpace extends PApplet {
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4,
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4);
         
-        textSize(32);
-        fill(0);
-        text("Throughput: " + Double.toString(sim.currentTime / 60), width / 2, height / 2 + 20);
-        text("Time: " + Double.toString(sim.currentTime / 60), width / 2, height / 2 + 20);
+        if (Settings.renderText) {
+	        fill(0);
+	        text("Throughput: " + Double.toString(sim.throughput), width / 2, height / 2 - 20);
+	        text("Time: " + Double.toString(sim.currentTime), width / 2, height / 2 + 20);
+        }
     }
 }

@@ -267,7 +267,13 @@ public class Auto {
 		return lane + " " + position + " " + currentSpeed;
 	}
 	
-	public void loopTrack(double length) {
+	public int loopTrack(double length) {
+		boolean looped = this.position > length;
 		this.position = this.position % length;
+		if (looped) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }

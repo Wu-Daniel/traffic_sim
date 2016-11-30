@@ -10,16 +10,21 @@ public class Settings {
 	public static final double reactionSpeed = 0.4;
 	public static final double initialDistanceBetweenCars = 10;
 	public static final double trackLength = 1000;
-	public static final int laneCount = 5;
+	public static final int laneCount = 8;
 	public static final double stepSize = 0.0166;
-	public static final int initialSteps = 5000;
-	public static final int stepsPerFrame = 10;
+	public static final int stepsPerFrame = 1;
 	public static final int carCountPerLane = 16;
 	public static final double chanceToAttemptLaneChangePerSecond = 1;
 	
 	public static final boolean looped = true;
 	public static final boolean laneChangeEnabled = true;
+	public static final boolean renderText = true;
 	public static final RenderingStyle renderingStyle = RenderingStyle.Speed;
+
+	public static final int initialTime = 100;
+	public static final double recordStartTime = 100;
+	public static final double recordEndTime = 200;
+	public static final double recordPosition = trackLength - 10;
 	
 	public static double calculateDesiredSpeed() {
 		return 67 + Math.random() * 10;
