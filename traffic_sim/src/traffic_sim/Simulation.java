@@ -4,6 +4,8 @@ import java.util.*;
 
 public class Simulation {
 	public int counter = 0;
+	public int throughput = 0;
+	
 	public double currentTime;
 	public int carCount = 0;
 	
@@ -60,6 +62,12 @@ public class Simulation {
 					}
 				} else {
 					car.loopTrack(Settings.trackLength);
+				}
+				
+				if (currentTime > Settings.recordStartTime && currentTime < Settings.recordEndTime) {
+					if (car.getPos() > Settings.recordPosition) {
+						throughput ++;
+					}
 				}
 			}
 			lane.removeAll(autosToRemove);
@@ -123,6 +131,14 @@ public class Simulation {
 		}
 		
 		states.put(currentTime, lanes);
+	}
+	
+	public int getThroughput() {
+		if (currentTime > Settings.recordEndTime) {
+			return throughput;
+		} else {
+			return -1;
+		}
 	}
 	
 	public Map<Integer, List<Auto>> snapshot() {
