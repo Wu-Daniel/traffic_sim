@@ -151,16 +151,23 @@ public class Auto {
 				lastCar = car;
 			}
 		}
-		
+		/*
 		if (nextCar == null) {
 			nextCar = lastCar.copy();
 			nextCar.position += settings.generateTrackLength();
 		}
+		*/
 		
 		boolean frontConstrained = false;
 		double distanceToStop = settings.generateTimeNeededToStop() * currentSpeed * Conversions.FeetPerMile * Conversions.HoursPerSecond;
 		double desiredDistance = settings.generateDesiredDistanceStopped() + distanceToStop * Math.pow(currentSpeed / desiredSpeed, 2);
-		double desiredPosition = nextCar.getPos() - desiredDistance;
+		double frontDistance;if (nextCar == null) {
+			frontDistance = 10000;
+		} else {
+			frontDistance = nextCar.getPos();
+			
+		}
+		double desiredPosition = frontDistance - desiredDistance;
 		if (this.position < desiredPosition) {
 			updateSpeedNoConstraint(stepSize);
 			constrained = false;
@@ -198,7 +205,7 @@ public class Auto {
 			this.currentSpeed = 0;
 		}
 
-		handleLaneChange(modifiableState, nextCar, canChangeLeft, canChangeRight, frontConstrained);
+		//handleLaneChange(modifiableState, nextCar, canChangeLeft, canChangeRight, frontConstrained);
 	}
 	
 	private boolean isBlockingLaneChange(Auto car) {
