@@ -11,23 +11,21 @@ public class SimSpace extends PApplet {
 	}
 
     public void settings() {
-		SimulationSettings settings = new DefaultSettings();
-		sim = new Simulation(settings, 1, true);
+		sim = new Simulation();
     	fullScreen();
     }
 
     public void setup(){
     	background(255);
 		rectMode(CENTER);
-//		for (int i = 0; i < 50000; i++) {
-//			sim.step(0.0166);
-//		}
+		for (int i = 0; i < Settings.initialSteps; i++) {
+			sim.step(Settings.stepSize);
+		}
     }
 
     public void draw(){
-        
         for (int i = 0; i < 10; i++) {
-        	sim.step(0.0166);
+        	sim.step(Settings.stepSize);
         }
         
         Map<Integer, List<Auto>> snapShot = sim.snapshot();
@@ -48,20 +46,22 @@ public class SimSpace extends PApplet {
 	        
 	        List<Auto> loop = snapShot.get(laneNumber);
 	        for (Auto car : loop) {
-	            double radians = -2 * Math.PI * car.getPos() / sim.length;
-	            double x = Math.cos(radians) * radius + width / 2;
-	            double y = Math.sin(radians) * radius + height / 2;
-	            
-	            pushMatrix();
-	            translate((float)x, (float)y);
-	            rotate((float)radians);
-	            
-	            float speedFraction = (float)Math.pow(car.getSpeed() / car.getDesiredSpeed(), 0.25);
-	            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
-	            
-	            double carLength = car.getSize() * circleLength / sim.length;
-	            rect(0, 0, laneRenderSize * (float)0.3, (float)carLength);
-	            popMatrix();
+	        	if (car.getPos() > 0) {
+		            double radians = -2 * Math.PI * car.getPos() / Settings.trackLength;
+		            double x = Math.cos(radians) * radius + width / 2;
+		            double y = Math.sin(radians) * radius + height / 2;
+		            
+		            pushMatrix();
+		            translate((float)x, (float)y);
+		            rotate((float)radians);
+		            
+		            float speedFraction = (float)Math.pow(car.getSpeed() / car.getDesiredSpeed(), 0.25);
+		            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
+		            
+		            double carLength = car.getSize() * circleLength / Settings.trackLength;
+		            rect(0, 0, laneRenderSize * (float)0.3, (float)carLength);
+		            popMatrix();
+	        	}
 	        }
         }
         fill(255);

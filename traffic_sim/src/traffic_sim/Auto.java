@@ -17,28 +17,24 @@ public class Auto {
 	private double reactionSpeed;
 	private double chanceToChangeLanesPerSecond = 1;
 	
-	private SimulationSettings settings;
-	
-	public Auto(SimulationSettings settings, int lane, double pos) {
+	public Auto(int lane, double pos) {
 		this.lane = lane;
 		this.position = pos;
 		
-		switchSpeedDifferential = settings.generateSwitchSpeedDifferential();
+		switchSpeedDifferential = Settings.switchSpeedDifferential;
 		
 		currentSpeed = 0;
-		desiredSpeed = settings.generateDesiredSpeed();
+		desiredSpeed = Settings.calculateDesiredSpeed();
 		
-		requiredLaneChangeSpaceInFront = settings.generateRequiredLaneChangeSpaceInFront();
-		requiredLaneChangeSpaceBehind = settings.generateRequiredLaneChangeSpaceBehind();
+		requiredLaneChangeSpaceInFront = Settings.requiredLaneChangeSpaceInFront;
+		requiredLaneChangeSpaceBehind = Settings.requiredLaneChangeSpaceBehind;
 		
-		accelerationSpeed = settings.generateAccelerationSpeed();
-		brakeSpeed = settings.generateBrakeSpeed();
+		accelerationSpeed = Settings.calculateAccelerationSpeed();
+		brakeSpeed = Settings.calculateBrakeSpeed();
 		
-		size = settings.generateCarSize();
+		size = Settings.carSize;
 		
-		reactionSpeed = settings.generateReactionSpeed();
-		
-		this.settings = settings;
+		reactionSpeed = Settings.reactionSpeed;
 	}
 	
 	public Auto(
@@ -52,8 +48,7 @@ public class Auto {
 			double accelerationSpeed,
 			double brakeSpeed,
 			double size,
-			double reactionSpeed,
-			SimulationSettings settings) {
+			double reactionSpeed) {
 		this.lane = lane;
 		this.position = position;
 		this.currentSpeed = currentSpeed;
@@ -65,7 +60,6 @@ public class Auto {
 		this.brakeSpeed = brakeSpeed;
 		this.size = size;
 		this.reactionSpeed = reactionSpeed;
-		this.settings = settings;
 	}
 	
 	public Auto copy() {
@@ -74,8 +68,7 @@ public class Auto {
 				switchSpeedDifferential, desiredSpeed,
 				requiredLaneChangeSpaceInFront,
 				requiredLaneChangeSpaceBehind, accelerationSpeed,
-				brakeSpeed, size, reactionSpeed,
-				settings);
+				brakeSpeed, size, reactionSpeed);
 	}
 
 	public int getLane() {
@@ -156,12 +149,12 @@ public class Auto {
 		}
 		if (nextCar == null && looped) {
 			nextCar = lastCar.copy();
-			nextCar.position += settings.generateTrackLength();
+			nextCar.position += Settings.trackLength;
 		}
 		
 		boolean frontConstrained = false;
-		double distanceToStop = settings.generateTimeNeededToStop() * currentSpeed * Conversions.FeetPerMile * Conversions.HoursPerSecond;
-		double desiredDistance = settings.generateDesiredDistanceStopped() + distanceToStop * Math.pow(currentSpeed / desiredSpeed, 2);
+		double distanceToStop = Settings.calculateTimeNeededToStop() * currentSpeed * Conversions.FeetPerMile * Conversions.HoursPerSecond;
+		double desiredDistance = Settings.calculateDesiredDistanceStopped() + distanceToStop * Math.pow(currentSpeed / desiredSpeed, 2);
 		
 		double desiredPosition;
 		if (nextCar == null) {

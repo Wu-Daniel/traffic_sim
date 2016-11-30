@@ -3,33 +3,23 @@ package traffic_sim;
 import java.util.*;
 
 public class Simulation {
-	//
 	public int counter = 0;
-	//
-	
-	public SimulationSettings settings;
 	public double currentTime;
-	public int laneCount;
-	public double length;
-	public int carCount = 0;;
-	public boolean looped;
+	public int carCount = 0;
 	
 	// This holds previous simulated states so that we can handle reaction speeds
 	Map<Double, Map<Integer, List<Auto>>> states = new HashMap<Double, Map<Integer, List<Auto>>>();
 	
-	public Simulation(SimulationSettings settings, int lanes, boolean looped) {
-		this.settings = settings;
+	public Simulation() {
 		this.currentTime = 0;
-		this.laneCount = lanes;
-		this.length = settings.generateTrackLength();
-		this.looped = looped;
 
 		Map<Integer, List<Auto>> initialLanes = new HashMap<Integer, List<Auto>>();
-		for (int i = 0; i < lanes; i++) {
+		for (int i = 0; i < Settings.laneCount; i++) {
 			List<Auto> initialAutos = new ArrayList<Auto>();
-			double distance = settings.generateInitialDistanceBetweenCars();
-			for (double position = 0; position < length / 5.5; position += distance) {
-				initialAutos.add(new Auto(settings, 0, position));
+			double currentCarPosition = 0;
+			for (int j = 0; j < Settings.carCount; j++) {
+				initialAutos.add(new Auto(i, currentCarPosition));
+				currentCarPosition += Settings.initialDistanceBetweenCars;
 			}
 			initialLanes.put(i, initialAutos);
 		}
@@ -42,7 +32,7 @@ public class Simulation {
 		
 		Map<Integer, List<Auto>> lastState = states.get(lastTime);
 		double highestReactionTime = 0;
-		for (int i = 0; i < laneCount; i++) {
+		for (int i = 0; i < Settings.laneCount; i++) {
 			List<Auto> lane = lastState.get(i);
 			List<Auto> autosToRemove = new ArrayList<Auto>();
 			List<Auto> loopList = new ArrayList<Auto>();
@@ -58,18 +48,18 @@ public class Simulation {
 					}
 				}
 				Map<Integer, List<Auto>> reactionState = states.get(closestTime);
-				car.step(reactionState, lastState, timeStep, looped);
+				car.step(reactionState, lastState, timeStep, Settings.looped);
 				
 				if (car.getReactionSpeed() > highestReactionTime) {
 					highestReactionTime = car.getReactionSpeed();
 				}
 				
-				if (!looped) {
-					if (car.getPos() > length) {
+				if (!Settings.looped) {
+					if (car.getPos() > Settings.trackLength) {
 						autosToRemove.add(car);
 					}
 				} else {
-					car.loopTrack(length);
+					car.loopTrack(Settings.trackLength);
 				}
 			}
 			lane.removeAll(autosToRemove);
@@ -90,10 +80,10 @@ public class Simulation {
 		// add new time
 		Map<Integer, Double> minPositions = new HashMap<Integer, Double>();
 		Map<Integer, List<Auto>> lanes = new HashMap<Integer, List<Auto>>();
-		for (int i = 0; i < laneCount; i++) {
+		for (int i = 0; i < Settings.laneCount; i++) {
 			List<Auto> newLane = new ArrayList<Auto>();
 			lanes.put(i, newLane);
-			double minPos = length;
+			double minPos = Settings.laneCount;
 			for (Auto car : states.get(lastTime).get(i)) {
 				Auto clone = car.copy();
 				newLane.add(clone);
@@ -104,16 +94,16 @@ public class Simulation {
 			minPositions.put(i, minPos);
 		}
 		
-		if (!looped) {
+		if (!Settings.looped) {
 			carCount = 0;
 			for (int key : lastState.keySet()) {
 				List<Auto> lane = lastState.get(key);
 				carCount += lane.size();
 			}
 			
-			if (counter > settings.generateEnterTime()/timeStep) {
+			if (counter > Settings.calculateEnterTime() / timeStep) {
 				double index = Math.random() * carCount;
-				for (int i = 0; i < laneCount; i++) {
+				for (int i = 0; i < Settings.laneCount; i++) {
 					List<Auto> lane = lanes.get(i);
 					if (lane.size() < index) {
 						index = index - lane.size();
@@ -122,7 +112,7 @@ public class Simulation {
 						if (positionToAdd > 0) {
 							positionToAdd = 0;
 						}
-						lane.add(new Auto(settings, i, positionToAdd - settings.generateCarSize()));
+						lane.add(new Auto(0, positionToAdd - Settings.carSize));
 						break;
 					}
 				}
