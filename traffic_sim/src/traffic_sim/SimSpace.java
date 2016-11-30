@@ -12,7 +12,7 @@ public class SimSpace extends PApplet {
 
     public void settings() {
 		SimulationSettings settings = new DefaultSettings();
-		sim = new Simulation(settings, 4, false);
+		sim = new Simulation(settings, 1, true);
     	fullScreen();
     }
 
@@ -26,7 +26,7 @@ public class SimSpace extends PApplet {
 
     public void draw(){
         
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
         	sim.step(0.0166);
         }
         
@@ -68,9 +68,5 @@ public class SimSpace extends PApplet {
         ellipse(width/2, height/2, 
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4,
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4);
-        if (sim.looped) {
-        	fill(0);
-        	rect(width * 3 / 4, height / 2, width / 2, 2);
-        }
     }
 }

@@ -69,6 +69,6 @@ public class DefaultSettings implements SimulationSettings {
 	
 	@Override
 	public double generateTrackLength() {
-		return 5000;
+		return 1000;
 	}
 }

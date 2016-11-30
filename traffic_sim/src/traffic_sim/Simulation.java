@@ -28,8 +28,7 @@ public class Simulation {
 		for (int i = 0; i < lanes; i++) {
 			List<Auto> initialAutos = new ArrayList<Auto>();
 			double distance = settings.generateInitialDistanceBetweenCars();
-//			for (double position = 0; position < length / 5.5; position += distance) {
-			for (double position = 0; position < length / 25; position += distance) {
+			for (double position = 0; position < length / 5.5; position += distance) {
 				initialAutos.add(new Auto(settings, 0, position));
 			}
 			initialLanes.put(i, initialAutos);
