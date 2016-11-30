@@ -10,11 +10,14 @@ public class Settings {
 	public static final double reactionSpeed = 0.4;
 	public static final double initialDistanceBetweenCars = 10;
 	public static final double trackLength = 1000;
-	public static final int laneCount = 1;
+	public static final int laneCount = 5;
 	public static final double stepSize = 0.0166;
-	public static final int initialSteps = 1000;
-	public static final int carCount = 22;
+	public static final int initialSteps = 0;
+	public static final int stepsPerFrame = 1;
+	public static final int carCount = 17;
+	
 	public static final boolean looped = true;
+	public static final boolean laneChangeEnabled = false;
 
 	public static double calculateDesiredSpeed() {
 		return 67 + Math.random() * 5;
