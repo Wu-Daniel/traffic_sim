@@ -10,9 +10,9 @@ public class SimSpace extends PApplet {
 		PApplet.main(new String[] { "--present", SimSpace.class.getName() }); 
 	}
 
-    public void settings(){
+    public void settings() {
 		SimulationSettings settings = new DefaultSettings();
-		sim = new Simulation(settings, 2, true);
+		sim = new Simulation(settings, 4, false);
     	fullScreen();
     }
 
@@ -26,14 +26,14 @@ public class SimSpace extends PApplet {
 
     public void draw(){
         
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
         	sim.step(0.0166);
         }
         
         Map<Integer, List<Auto>> snapShot = sim.snapshot();
         int laneCount = snapShot.size();
-        float borderSize = 100;
-        float laneRenderSize = 175;
+        float borderSize = height / 20;
+        float laneRenderSize = height / 15;
     	// Draw Lane
         for (int laneNumber = 0; laneNumber < laneCount; laneNumber++) {
 	        float radius = height / 2 - borderSize - laneNumber * laneRenderSize / 2;
@@ -60,13 +60,17 @@ public class SimSpace extends PApplet {
 	            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
 	            
 	            double carLength = car.getSize() * circleLength / sim.length;
-	            rect(0, 0, 50, (float)carLength);
+	            rect(0, 0, laneRenderSize * (float)0.3, (float)carLength);
 	            popMatrix();
 	        }
         }
         fill(255);
         ellipse(width/2, height/2, 
-        		height - borderSize - laneCount * laneRenderSize,
-        		height - borderSize - laneCount * laneRenderSize);
+        		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4,
+        		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4);
+        if (sim.looped) {
+        	fill(0);
+        	rect(width * 3 / 4, height / 2, width / 2, 50);
+        }
     }
 }

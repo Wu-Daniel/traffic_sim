@@ -225,7 +225,11 @@ public class Auto {
 			this.currentSpeed = 0;
 		}
 
-		handleLaneChange(modifiableState, nextCar, leftSpace, rightSpace, nextCar.position - position, stepSize);
+		double frontDistance = -1;
+		if (nextCar != null) {
+			frontDistance = nextCar.position - position;
+		}
+		handleLaneChange(modifiableState, nextCar, leftSpace, rightSpace, frontDistance, stepSize);
 	}
 	
 	private boolean isBlockingLaneChange(Auto car) {
