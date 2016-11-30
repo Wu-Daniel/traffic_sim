@@ -9,7 +9,7 @@ public class DefaultSettings implements SimulationSettings {
 
 	@Override
 	public double generateDesiredSpeed() {
-		return 67;
+		return 67 + Math.random() * 5;
 	}
 
 	@Override
@@ -62,16 +62,13 @@ public class DefaultSettings implements SimulationSettings {
 		return 10;
 	}
 	
-	//
 	@Override
 	public double generateEnterTime() {
 		return 2 * (generateCarSize() + generateDistanceToStop())/(generateDesiredSpeed() * Conversions.FeetPerMile / Conversions.SecondsPerHour);
 	}
 	
-	//
-	
 	@Override
 	public double generateTrackLength() {
-		return 1000;
+		return 5000;
 	}
 }

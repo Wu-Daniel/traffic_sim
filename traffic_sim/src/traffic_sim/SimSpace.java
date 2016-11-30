@@ -12,18 +12,21 @@ public class SimSpace extends PApplet {
 
     public void settings(){
 		SimulationSettings settings = new DefaultSettings();
-		sim = new Simulation(settings, 1);
+		sim = new Simulation(settings, 2, true);
     	fullScreen();
     }
 
     public void setup(){
     	background(255);
 		rectMode(CENTER);
+//		for (int i = 0; i < 50000; i++) {
+//			sim.step(0.0166);
+//		}
     }
 
     public void draw(){
         
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
         	sim.step(0.0166);
         }
         

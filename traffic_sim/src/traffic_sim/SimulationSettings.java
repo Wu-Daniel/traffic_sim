@@ -20,9 +20,7 @@ public interface SimulationSettings {
 	
 	double generateInitialDistanceBetweenCars();
 	
-	//
 	double generateEnterTime(); // second per car;
-	//
 	
 	double generateTrackLength();
 }
