@@ -18,6 +18,7 @@ public class SimSpace extends PApplet {
     public void setup(){
     	background(255);
 		rectMode(CENTER);
+		textAlign(CENTER, CENTER);
 		for (int i = 0; i < Settings.initialSteps; i++) {
 			sim.step(Settings.stepSize);
 		}
@@ -55,8 +56,16 @@ public class SimSpace extends PApplet {
 		            translate((float)x, (float)y);
 		            rotate((float)radians);
 		            
-		            float speedFraction = (float)Math.pow(car.getSpeed() / car.getDesiredSpeed(), 0.25);
-		            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
+		            if (Settings.renderingStyle == RenderingStyle.Speed) {
+			            float speedFraction = (float)Math.pow(car.getSpeed() / car.getDesiredSpeed(), 0.25);
+			            fill((float)255 * ((float)1.0 - speedFraction), (float)255 * speedFraction, 0);
+		            } else {
+		            	if (car.constrained) {
+		            		fill(255, 0, 0);
+		            	} else {
+		            		fill(0, 255, 0);
+		            	}
+		            }
 		            
 		            double carLength = car.getSize() * circleLength / Settings.trackLength;
 		            rect(0, 0, laneRenderSize * (float)0.3, (float)carLength);
@@ -68,5 +77,10 @@ public class SimSpace extends PApplet {
         ellipse(width/2, height/2, 
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4,
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4);
+        
+        textSize(32);
+        fill(0);
+        text("Throughput: " + Double.toString(sim.currentTime / 60), width / 2, height / 2 + 20);
+        text("Time: " + Double.toString(sim.currentTime / 60), width / 2, height / 2 + 20);
     }
 }

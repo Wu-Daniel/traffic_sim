@@ -12,19 +12,17 @@ public class Settings {
 	public static final double trackLength = 1000;
 	public static final int laneCount = 5;
 	public static final double stepSize = 0.0166;
-	public static final int initialSteps = 0;
+	public static final int initialSteps = 5000;
 	public static final int stepsPerFrame = 10;
-	public static final int carCount = 17;
+	public static final int carCountPerLane = 16;
+	public static final double chanceToAttemptLaneChangePerSecond = 1;
 	
 	public static final boolean looped = true;
-	public static final boolean laneChangeEnabled = false;
+	public static final boolean laneChangeEnabled = true;
+	public static final RenderingStyle renderingStyle = RenderingStyle.Speed;
 	
-	public static final double recordStartTime = 0;
-	public static final double recordEndTime = 100;
-	public static final double recordPosition = 100;
-
 	public static double calculateDesiredSpeed() {
-		return 67 + Math.random() * 5;
+		return 67 + Math.random() * 10;
 	}
 
 	public static double calculateDesiredDistanceStopped() {

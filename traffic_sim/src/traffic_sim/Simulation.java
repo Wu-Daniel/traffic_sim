@@ -19,7 +19,7 @@ public class Simulation {
 		for (int i = 0; i < Settings.laneCount; i++) {
 			List<Auto> initialAutos = new ArrayList<Auto>();
 			double currentCarPosition = 0;
-			for (int j = 0; j < Settings.carCount; j++) {
+			for (int j = 0; j < Settings.carCountPerLane; j++) {
 				initialAutos.add(new Auto(i, currentCarPosition));
 				currentCarPosition += Settings.initialDistanceBetweenCars;
 			}

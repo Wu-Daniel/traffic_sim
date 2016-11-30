@@ -15,7 +15,8 @@ public class Auto {
 	private double brakeSpeed;
 	private double size;
 	private double reactionSpeed;
-	private double chanceToChangeLanesPerSecond = 1;
+	
+	public boolean constrained = false;
 	
 	public Auto(int lane, double pos) {
 		this.lane = lane;
@@ -48,7 +49,8 @@ public class Auto {
 			double accelerationSpeed,
 			double brakeSpeed,
 			double size,
-			double reactionSpeed) {
+			double reactionSpeed,
+			boolean constrained) {
 		this.lane = lane;
 		this.position = position;
 		this.currentSpeed = currentSpeed;
@@ -60,6 +62,7 @@ public class Auto {
 		this.brakeSpeed = brakeSpeed;
 		this.size = size;
 		this.reactionSpeed = reactionSpeed;
+		this.constrained = constrained;
 	}
 	
 	public Auto copy() {
@@ -68,7 +71,7 @@ public class Auto {
 				switchSpeedDifferential, desiredSpeed,
 				requiredLaneChangeSpaceInFront,
 				requiredLaneChangeSpaceBehind, accelerationSpeed,
-				brakeSpeed, size, reactionSpeed);
+				brakeSpeed, size, reactionSpeed, constrained);
 	}
 
 	public int getLane() {
@@ -95,6 +98,22 @@ public class Auto {
 		return reactionSpeed;
 	}
 	
+	private void changeRight(Map<Integer, List<Auto>> state) {
+		List<Auto> currentLane = state.get(this.lane);
+		List<Auto> desiredLane = state.get(this.lane - 1);
+		currentLane.remove(this);
+		desiredLane.add(this);
+		this.lane--;
+	}
+	
+	private void changeLeft(Map<Integer, List<Auto>> state) {
+		List<Auto> currentLane = state.get(this.lane);
+		List<Auto> desiredLane = state.get(this.lane + 1);
+		currentLane.remove(this);
+		desiredLane.add(this);
+		this.lane++;
+	}
+	
 	// Override this to make different behaviors
 	public void handleLaneChange(
 			Map<Integer, List<Auto>> state,
@@ -103,21 +122,11 @@ public class Auto {
 			double distanceRight, // -1 blocked to the right dont change
 			double distanceFront, // -1 means no car in front of me so no need to change
 			double timeElapsed) {
-		if (Math.random() < timeElapsed * chanceToChangeLanesPerSecond) {
-			if (distanceFront != -1) {
-				if (distanceRight > distanceFront && distanceRight > distanceLeft) {
-					List<Auto> currentLane = state.get(this.lane);
-					List<Auto> desiredLane = state.get(this.lane - 1);
-					currentLane.remove(this);
-					desiredLane.add(this);
-					this.lane--;
-				} else if (distanceLeft > distanceFront && distanceLeft > distanceRight) {
-					List<Auto> currentLane = state.get(this.lane);
-					List<Auto> desiredLane = state.get(this.lane + 1);
-					currentLane.remove(this);
-					desiredLane.add(this);
-					this.lane++;
-				}
+		if (Math.random() < timeElapsed * Settings.chanceToAttemptLaneChangePerSecond) {
+			if (distanceFront != -1 && distanceLeft != -1 && distanceLeft > distanceFront) {
+				changeLeft(state);
+			} else if (distanceRight != -1){
+				changeRight(state);
 			}
 		}
 	}
@@ -152,7 +161,7 @@ public class Auto {
 			nextCar.position += Settings.trackLength;
 		}
 		
-		boolean frontConstrained = false;
+		constrained = false;
 		double distanceToStop = Settings.calculateTimeNeededToStop() * currentSpeed * Conversions.FeetPerMile * Conversions.HoursPerSecond;
 		double desiredDistance = Settings.calculateDesiredDistanceStopped() + distanceToStop * Math.pow(currentSpeed / desiredSpeed, 2);
 		
@@ -166,13 +175,13 @@ public class Auto {
 		if (this.position < desiredPosition) {
 			updateSpeedNoConstraint(stepSize);
 		} else {
-			frontConstrained = true;
+			constrained = true;
 			deccelerate(stepSize);
 		}
 		
-		double leftSpace = 0;
-		if (observedState.containsKey(lane + 1)) {
-			List<Auto> nextLane = observedState.get(lane + 1);
+		double leftSpace = -1;
+		if (modifiableState.containsKey(lane + 1)) {
+			List<Auto> nextLane = modifiableState.get(lane + 1);
 			boolean canChange = true;
 			Auto car = null;
 			for (Auto otherCar : nextLane) {
@@ -192,9 +201,9 @@ public class Auto {
 			}
 		}
 		
-		double rightSpace = 0;
+		double rightSpace = -1;
 		if (lane > 0) {
-			List<Auto> previousLane = observedState.get(lane - 1);
+			List<Auto> previousLane = modifiableState.get(lane - 1);
 			boolean canChange = true;
 			Auto car = null;
 			for (Auto otherCar : previousLane) {
