@@ -106,9 +106,9 @@ public class Auto {
 	public void handleLaneChange(
 			Map<Integer, List<Auto>> state,
 			Auto carInFront,
-			double distanceLeft,
-			double distanceRight,
-			double distanceFront,
+			double distanceLeft,  // -1 blocked to the left change
+			double distanceRight, // -1 blocked to the right dont change
+			double distanceFront, // -1 means no car in front of me so no need to change
 			double timeElapsed) {
 		if (Math.random() < timeElapsed * chanceToChangeLanesPerSecond) {
 			if (distanceFront != -1) {
@@ -193,7 +193,7 @@ public class Auto {
 			}
 			
 			if (canChange && car != null) {
-				leftSpace = position - car.getPos();
+				leftSpace = car.getPos() - position;
 			} else {
 				leftSpace = -1;
 			}
@@ -215,7 +215,7 @@ public class Auto {
 			}
 			
 			if (canChange && car != null) {
-				rightSpace = position - car.getPos();
+				rightSpace = car.getPos() - position;
 			} else {
 				rightSpace = -1;
 			}

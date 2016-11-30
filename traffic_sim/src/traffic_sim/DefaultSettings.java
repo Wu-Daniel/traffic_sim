@@ -64,7 +64,7 @@ public class DefaultSettings implements SimulationSettings {
 	
 	@Override
 	public double generateEnterTime() {
-		return 2 * (generateCarSize() + generateDistanceToStop())/(generateDesiredSpeed() * Conversions.FeetPerMile / Conversions.SecondsPerHour);
+		return 0.5 * (generateCarSize() + generateDistanceToStop())/(generateDesiredSpeed() * Conversions.FeetPerMile / Conversions.SecondsPerHour);
 	}
 	
 	@Override

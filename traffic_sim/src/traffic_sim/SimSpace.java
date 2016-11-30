@@ -70,7 +70,7 @@ public class SimSpace extends PApplet {
         		height - borderSize - laneCount * laneRenderSize - laneRenderSize / 4);
         if (sim.looped) {
         	fill(0);
-        	rect(width * 3 / 4, height / 2, width / 2, 50);
+        	rect(width * 3 / 4, height / 2, width / 2, 2);
         }
     }
 }
